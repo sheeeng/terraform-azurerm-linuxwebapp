@@ -16,7 +16,7 @@ terraform init -upgrade \
     && terraform validate .
 ```
 
-- ~Always fetch latest changes from upstream and rebase from it. Terraform documentation will always be updated with GitHub Actions. See also [.github/workflows/terraform.yml](.github/workflows/terraform.yml) GitHub Actions workflow.~
+- Always fetch latest changes from upstream and rebase from it. Terraform documentation will always be updated with GitHub Actions. See also [.github/workflows/terraform.yml](.github/workflows/terraform.yml) GitHub Actions workflow.
 
 ```shell
 git fetch --all --tags --prune --prune-tags \
