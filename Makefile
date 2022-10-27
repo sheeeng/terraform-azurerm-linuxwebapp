@@ -34,4 +34,5 @@ validate: fmt
 	fmt\
 	graph \
 	init \
-	tools
+	tools \
+	validate
