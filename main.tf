@@ -10,6 +10,10 @@ resource "azurerm_linux_web_app" "linux_web_app" {
 
   service_plan_id = var.service_plan_id
 
+  site_config {
+
+  }
+
   # dynamic "site_config" {
   #   for_each = var.site_config
   #   content {
@@ -271,7 +275,7 @@ resource "azurerm_linux_web_app" "linux_web_app" {
   # client_certificate_exclusion_paths = var.client_certificate_exclusion_paths # https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md#3280-october-20-2022
 
   dynamic "connection_string" {
-    for_each = var.connection_string
+    for_each = var.configuration.connection_string
     content {
       name  = var.configuration.connection_string.value.name
       type  = var.configuration.connection_string.value.type
