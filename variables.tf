@@ -62,9 +62,8 @@ variable "service_plan_id" {
   type        = string
 }
 
-# TODO: Implement below dynamic block in main.tf file.
 # variable "site_config" {
-#   description = "(Optional) A `site_config` block as documented [here](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app)."
+#   description = "(Optional) A `site_config` block as defined in [linux_web_app](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app)."
 #   type = object(
 #     {
 #       always_on             = optional(bool)   # (Optional) If this Linux Web App is Always On enabled. Defaults to `true`. Note: `always_on` must be explicitly set to `false` when using `Free`, `F1`, `D1`, or `Shared` Service Plans.
@@ -193,52 +192,16 @@ variable "service_plan_id" {
 #       worker_count                = optional(number) # (Optional) The number of Workers for this Linux App Service.
 #     }
 #   )
-#   default = {
-#     always_on = true
-#     # api_definition_url    = null
-#     # api_management_api_id = null
-#     # app_command_line      = null
-#     # application_stack = {
-#     #   docker_image_tag = "latest"
-#     # }
-#     # auto_heal_enabled                             = false
-#     # auto_heal_setting                             = {}
-#     # container_registry_managed_identity_client_id = null
-#     # container_registry_use_managed_identity       = null
-#     # cors = {
-#     #   allowed_origins     = []
-#     #   support_credentials = false
-#     # }
-#     # default_documents                 = []
-#     # ftps_state                        = null
-#     # health_check_path                 = null
-#     # health_check_eviction_time_in_min = null
-#     # http2_enabled                     = false
-#     # ip_restriction                    = null
-#     # load_balancing_mode               = null
-#     # local_mysql_enabled               = null
-#     # managed_pipeline_mode             = null
-#     # minimum_tls_version               = null
-#     # remote_debugging_enabled          = null
-#     # remote_debugging_version          = null
-#     # scm_ip_restriction                = null
-#     # scm_minimum_tls_version           = null
-#     # scm_use_main_ip_restriction       = null
-#     # use_32_bit_worker                 = null
-#     # vnet_route_all_enabled            = null
-#     # websockets_enabled                = null
-#     # worker_count                      = null
-#   }
+#   default = {}
 # }
 
 variable "app_settings" {
-  description = "(Optional) A map of key-value pairs of App Settings as defined at [azurerm_linux_web_app](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app)."
+  description = "(Optional) A map of key-value pairs of App Settings as defined in [linux_web_app](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app)."
   type        = map(any)
 }
 
-# TODO: Implement below dynamic block in main.tf file.
 # variable "auth_settings" {
-#   description = "(Optional) A `auth_settings` block as documented [here](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app)."
+#   description = "(Optional) A `auth_settings` block as defined in [linux_web_app](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app)."
 #   type = object(
 #     {
 #       enabled = bool # (Required) Should the Authentication / Authorization feature be enabled for the Linux Web App?
@@ -370,13 +333,14 @@ variable "client_certificate_mode" {
   }
 }
 
+# https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md#3280-october-20-2022
 # variable "client_certificate_exclusion_paths" {
 #   description = "(Optional) Paths to exclude when using client certificates, separated by `;`."
 #   type        = string
 # }
 
 # variable "connection_string" {
-#   description = "(Optional) A `connection_string` block as documented in [linux_web_app](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app) resource."
+#   description = "(Optional) A `connection_string` block as defined in [linux_web_app](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app)."
 #   type = object(
 #     {
 #       name  = string # (Required) The name of the Connection String.
@@ -501,5 +465,6 @@ variable "zip_deploy_file" {
 
 variable "tags" {
   description = "(Optional) A mapping of tags to assign to the resource."
+  type        = map(string)
   default     = {}
 }
