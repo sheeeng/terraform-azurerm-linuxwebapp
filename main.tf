@@ -254,19 +254,16 @@ resource "azurerm_linux_web_app" "linux_web_app" {
     content {
       name = backup.value.name
 
-      dynamic "schedule" {
-        for_each = backup.value.schedule
-        content {
-          frequency_interval       = schedule.value.frequency_interval
-          frequency_unit           = schedule.value.frequency_unit
-          keep_at_least_one_backup = schedule.value.keep_at_least_one_backup
-          retention_period_days    = schedule.value.retention_period_days
-          start_time               = schedule.value.start_time
-        }
+      schedule {
+        frequency_interval       = schedule.value.frequency_interval
+        frequency_unit           = schedule.value.frequency_unit
+        keep_at_least_one_backup = try(schedule.value.keep_at_least_one_backup, null)
+        retention_period_days    = try(schedule.value.retention_period_days, null)
+        start_time               = try(schedule.value.start_time, null)
       }
 
       storage_account_url = backup.value.storage_account_url
-      enabled             = backup.value.enabled
+      enabled             = try(backup.value.enabled, null)
     }
   }
 
@@ -293,7 +290,7 @@ resource "azurerm_linux_web_app" "linux_web_app" {
 
     content {
       type         = identity.value.type
-      identity_ids = identity.value.managed_identities
+      identity_ids = try(identity.value.managed_identities, null)
     }
   }
 
@@ -318,8 +315,8 @@ resource "azurerm_linux_web_app" "linux_web_app" {
         }
       }
 
-      detailed_error_messages = logs.value.detailed_error_messages
-      failed_request_tracing  = logs.value.failed_request_tracing
+      detailed_error_messages = try(logs.value.detailed_error_messages, null)
+      failed_request_tracing  = try(logs.value.failed_request_tracing, null)
 
       dynamic "http_logs" {
         for_each = logs.value.http_logs
@@ -349,12 +346,12 @@ resource "azurerm_linux_web_app" "linux_web_app" {
     for_each = lookup(var.configuration.value, "storage_account", {})
 
     content {
-      access_key   = storage_account.value.access_key   # (Required) The Access key for the storage account.
-      account_name = storage_account.value.account_name # (Required) The Name of the Storage Account.
-      name         = storage_account.value.name         # (Required) The name which should be used for this Storage Account.
-      share_name   = storage_account.value.share_name   # (Required) The Name of the File Share or Container Name for Blob storage.
-      type         = storage_account.value.type         # (Required) The Azure Storage Type. Possible values include `AzureFiles` and `AzureBlob`.
-      mount_path   = storage_account.value.mount_path   # (Optional) The path at which to mount the storage share.
+      access_key   = storage_account.value.access_key            # (Required) The Access key for the storage account.
+      account_name = storage_account.value.account_name          # (Required) The Name of the Storage Account.
+      name         = storage_account.value.name                  # (Required) The name which should be used for this Storage Account.
+      share_name   = storage_account.value.share_name            # (Required) The Name of the File Share or Container Name for Blob storage.
+      type         = storage_account.value.type                  # (Required) The Azure Storage Type. Possible values include `AzureFiles` and `AzureBlob`.
+      mount_path   = try(storage_account.value.mount_path, null) # (Optional) The path at which to mount the storage share.
     }
   }
 
@@ -362,8 +359,8 @@ resource "azurerm_linux_web_app" "linux_web_app" {
     for_each = lookup(var.configuration.value, "sticky_settings", {})
 
     content {
-      app_setting_names       = sticky_settings.value.app_setting_names
-      connection_string_names = sticky_settings.value.connection_string_names
+      app_setting_names       = try(sticky_settings.value.app_setting_names, null)
+      connection_string_names = try(sticky_settings.value.connection_string_names, null)
     }
   }
 
