@@ -1,0 +1,33 @@
+name: ratchet
+
+on:
+  workflow_dispatch: # Enable manual trigger to run workflow.
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    # “At minute 15 past hour 5 and 17 on every day-of-week from Monday through Friday.”
+    - cron: "15 5,17 * * 1-5"
+
+jobs:
+  ratchet:
+    name: "ratchet"
+    runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        workflow:
+          [
+            "rachet.yml",
+            "terraform.yml",
+            "tfsec.yml",
+            "trivy-workflow.yml",
+            "trivy.yml",
+          ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: "github.com/sethvargo/ratchet@v0.3.1"
+        with:
+          args: "pin .github/workflows/${{ matrix.workflow }}"
