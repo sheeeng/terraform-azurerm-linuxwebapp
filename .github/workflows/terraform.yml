@@ -7,6 +7,19 @@ on:
       - main
 
 jobs:
+  trivy-scan-job:
+    name: "Trivy Scan Job"
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: false
+    uses: ./.github/workflows/trivy.yml
+    with:
+      runs-on: ubuntu-latest
+      trivy-error-is-success: true
+      trivy-sbom-enabled: false
+      working-directory: .
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
   terraform:
     name: Terraform
     runs-on: ubuntu-latest
