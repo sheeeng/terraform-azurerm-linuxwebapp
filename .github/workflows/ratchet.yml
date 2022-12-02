@@ -57,5 +57,5 @@ jobs:
 
           ./ratchet --version
 
-          ./ratchet check .github/workflows/${{ matrix.workflow }}"
+          ./ratchet check ".github/workflows/${{ matrix.workflow }}"
       # ------------------------------------------------------------------------
