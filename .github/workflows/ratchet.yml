@@ -1,5 +1,4 @@
 name: ratchet
-
 on:
   workflow_dispatch: # Enable manual trigger to run workflow.
   push:
@@ -9,7 +8,6 @@ on:
   schedule:
     # “At minute 15 past hour 5 and 17 on every day-of-week from Monday through Friday.”
     - cron: "15 5,17 * * 1-5"
-
 jobs:
   ratchet:
     name: "ratchet"
@@ -19,18 +17,10 @@ jobs:
         shell: bash
     strategy:
       matrix:
-        workflow:
-          [
-            "ratchet.yml",
-            "terraform.yml",
-            "tfsec.yml",
-            "trivy-workflow.yml",
-            "trivy.yml",
-          ]
-
+        workflow: ["ratchet.yml", "terraform.yml", "tfsec.yml", "trivy-workflow.yml", "trivy.yml"]
     steps:
       # ------------------------------------------------------------------------
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # ratchet:actions/checkout@v3
       # ------------------------------------------------------------------------
       # ------------------------------------------------------------------------
       - name: Setup Ratchet
@@ -59,4 +49,4 @@ jobs:
           ./ratchet --version
 
           ./ratchet check ".github/workflows/${{ matrix.workflow }}"
-      # ------------------------------------------------------------------------
+    # ------------------------------------------------------------------------
