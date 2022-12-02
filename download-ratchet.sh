@@ -36,18 +36,30 @@ for url in ${urlArray[@]}; do
         "${url}"
 done
 
-sha512sum --check ratchet_0.3.1_SHA512SUMS 2>&1 | grep --quiet OK # https://stackoverflow.com/questions/23228209/piping-shasum-to-grep-but-grep-returning-all-lines-of-piped-input-even-ones-th/23228588#23228588
+# https://stackoverflow.com/questions/23228209/piping-shasum-to-grep-but-grep-returning-all-lines-of-piped-input-even-ones-th/23228588#23228588
+# https://stackoverflow.com/questions/22464786/ignoring-bash-pipefail-for-error-code-141/33026977#33026977
+sha512sum --check ratchet_0.3.1_SHA512SUMS 2>&1 | grep --quiet OK || if [[ $? -eq 141 ]]; then true; else exit $?; fi
+echo "Check" ${PIPESTATUS[@]}
 
 # gpg --batch --delete-key --yes 0xDA181DFE1B26293F42BBEC139C01CC8AB5D3F179
 gpg --keyid-format long --keyserver hkp://keyserver.ubuntu.com --recv-keys 0xDA181DFE1B26293F42BBEC139C01CC8AB5D3F179
-gpg --keyid-format long --list-keys --with-fingerprint 0xDA181DFE1B26293F42BBEC139C01CC8AB5D3F179
+echo "Retrieve" ${PIPESTATUS[@]}
 
+gpg --keyid-format long --list-keys --with-fingerprint 0xDA181DFE1B26293F42BBEC139C01CC8AB5D3F179
+echo "Fingerprint" ${PIPESTATUS[@]}
+
+# https://stackoverflow.com/questions/23228209/piping-shasum-to-grep-but-grep-returning-all-lines-of-piped-input-even-ones-th/23228588#23228588
 gpg --keyid-format long --verify ratchet_0.3.1_SHA512SUMS.sig ratchet_0.3.1_SHA512SUMS 2>&1 | grep 'Good signature'
+echo "Verify" ${PIPESTATUS[@]}
 
 tar -xzvf ratchet_0.3.1_linux_amd64.tar.gz ratchet
+echo "Extract" ${PIPESTATUS[@]}
 
-# sha512sum --check $(grep ratchet_0.3.1_linux_amd64.tar.gz ratchet_0.3.1_SHA512SUMS) ratchet_0.3.1_linux_amd64.tar.gz
+# https://stackoverflow.com/questions/23228209/piping-shasum-to-grep-but-grep-returning-all-lines-of-piped-input-even-ones-th/23228588#23228588
+# https://stackoverflow.com/questions/22464786/ignoring-bash-pipefail-for-error-code-141/33026977#33026977
+shasum -a 512 -c ratchet_0.3.1_SHA512SUMS | grep --quiet OK || if [[ $? -eq 141 ]]; then true; else exit $?; fi
+if [[ $? -ne 0 ]]; then
+echo "non zero exit status"
+fi
 
-shasum -a 512 -c ratchet_0.3.1_SHA512SUMS | grep --quiet OK
-
-cd --verbose ${SCRIPT_DIRECTORY}
+cd ${SCRIPT_DIRECTORY}
