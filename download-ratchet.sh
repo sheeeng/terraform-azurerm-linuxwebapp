@@ -53,4 +53,6 @@ echo "Verify" ${PIPESTATUS[@]}
 tar -xzvf ratchet_0.3.1_linux_amd64.tar.gz ratchet
 echo "Extract" ${PIPESTATUS[@]}
 
+./ratchet --version
+
 cd ${SCRIPT_DIRECTORY}
