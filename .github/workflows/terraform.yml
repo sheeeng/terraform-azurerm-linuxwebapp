@@ -17,7 +17,7 @@ jobs:
       runs-on: ubuntu-latest
       trivy-error-is-success: true
       trivy-sbom-enabled: true
-      working-directory: .
+      working-directory: ./tests/
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
   terraform:
