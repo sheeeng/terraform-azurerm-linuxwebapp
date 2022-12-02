@@ -21,7 +21,7 @@ jobs:
       matrix:
         workflow:
           [
-            "rachet.yml",
+            "ratchet.yml",
             "terraform.yml",
             "tfsec.yml",
             "trivy-workflow.yml",
