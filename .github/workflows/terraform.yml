@@ -16,7 +16,7 @@ jobs:
     with:
       runs-on: ubuntu-latest
       trivy-error-is-success: true
-      trivy-sbom-enabled: false
+      trivy-sbom-enabled: true
       working-directory: .
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
