@@ -1,0 +1,128 @@
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        default: ubuntu-latest
+        type: string
+      trivy-error-is-success:
+        default: false
+        type: boolean
+      trivy-ignore-files:
+        default: ''
+        type: string
+      trivy-ignore-unfixed:
+        default: true
+        type: boolean
+      trivy-job-enabled:
+        default: true
+        type: boolean
+      trivy-sbom-enabled:
+        default: false
+        type: boolean
+      trivy-severity:
+        default: MEDIUM,HIGH,CRITICAL
+        type: string
+      working-directory:
+        default: .
+        type: string
+    secrets:
+      token:
+        required: true
+
+name: Trivy
+jobs:
+  trivy:
+    name: Trivy Vulnerability Scan (${{ inputs.working-directory }})
+    runs-on: ${{ inputs.runs-on }}
+    if: inputs.trivy-job-enabled
+    steps:
+      # ------------------------------------------------------------------------
+      - uses: actions/checkout@v3
+      # ------------------------------------------------------------------------
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      # ------------------------------------------------------------------------
+      - name: Parse Ignore Files
+        shell: python
+        env:
+          WORKING_DIRECTORY: ${{ inputs.working-directory }}
+          IGNORE_FILES: ${{ inputs.trivy-ignore-files }}
+        run: |
+          import os
+          gh_env_file = os.getenv("GITHUB_ENV")
+          workdir = os.getenv("WORKING_DIRECTORY")
+          ignorefiles = os.getenv("IGNORE_FILES")
+          paths = []
+          for p in [p.strip() for p in ignorefiles.split(",") if p]:
+            paths.append(os.path.join(workdir, p))
+          if paths:
+            with open(gh_env_file, 'a') as f:
+              print("TRIVYIGNORE_PATHS", ",".join(paths), sep="=", file=f)
+      # ------------------------------------------------------------------------
+      - name: Trivy Scan
+        uses: aquasecurity/trivy-action@0.8.0
+        id: trivy-scan
+        with:
+          exit-code: '0'
+          format: json
+          hide-progress: false
+          ignore-unfixed: ${{ inputs.trivy-ignore-unfixed }}
+          output: .trivy-scan-result.json
+          scan-ref: ${{ inputs.working-directory }}
+          scan-type: config
+          severity: ${{ inputs.trivy-severity }}
+          trivyignores: ${{ env.TRIVYIGNORE_PATHS }}
+      # ------------------------------------------------------------------------
+      - name: Parse Trivy Scan Results
+        shell: python
+        env:
+          RESULT_FILENAME: .trivy-scan-result.json
+        continue-on-error: ${{ inputs.trivy-error-is-success }}
+        run: |
+          import json
+          import os
+          import sys
+          result_filename = os.getenv("RESULT_FILENAME")
+          def create_output(filename, error):
+              severity = "warning"
+              if error["Severity"] in ("HIGH", "CRITICAL"):
+                  severity = "error"
+              message = f"{error['ID']}: {error['Title']}%0A{error['Description']}%0A{error['Message']}%0AResolution: {error['Resolution']}%0A"
+              for reference in error["References"]:
+                  message += f"%0A{reference}"
+              start_line = error["CauseMetadata"]["StartLine"]
+              end_line = error["CauseMetadata"]["EndLine"]
+              print(
+                  f"::{severity} file={filename},line={start_line},endLine={end_line}::{message}"
+              )
+          with open(result_filename, "r") as result_file:
+              output = json.load(result_file)
+              results = output.get("Results", [])
+              exit_status = 0
+              for result in results:
+                  for misconfiguration in result.get("Misconfigurations", []):
+                      # Since severity filter is set at job level, we can exit non-zero for all
+                      # errors regardless of severity and let workflow consumers decide which
+                      # severity levels to care about.
+                      exit_status = 1
+                      create_output(result["Target"], misconfiguration)
+              sys.exit(exit_status)
+      # ------------------------------------------------------------------------
+  trivy-sbom:
+    name: Generate SBOM (${{ inputs.working-directory }})
+    runs-on: ${{ inputs.runs-on }}
+    if: inputs.trivy-sbom-enabled
+    steps:
+      # ------------------------------------------------------------------------
+      - uses: actions/checkout@v3
+      # ------------------------------------------------------------------------
+      - name: Submit SBOM results to Dependency Snapshots
+        uses: aquasecurity/trivy-action@0.8.0
+        with:
+          scan-type: 'fs'
+          format: 'github'
+          output: 'dependency-results.sbom.json'
+          image-ref: '.'
+          github-pat: '${{ secrets.GITHUB_TOKEN }}'
+      # ------------------------------------------------------------------------
