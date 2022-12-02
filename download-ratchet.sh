@@ -36,9 +36,7 @@ for url in ${urlArray[@]}; do
         "${url}"
 done
 
-# https://stackoverflow.com/questions/23228209/piping-shasum-to-grep-but-grep-returning-all-lines-of-piped-input-even-ones-th/23228588#23228588
-# https://stackoverflow.com/questions/22464786/ignoring-bash-pipefail-for-error-code-141/33026977#33026977
-sha512sum --check ratchet_0.3.1_SHA512SUMS 2>&1 | grep --quiet OK || if [[ $? -eq 141 ]]; then true; else exit $?; fi
+grep ratchet_0.3.1_linux_amd64.tar.gz ratchet_0.3.1_SHA512SUMS | sha512sum --check -
 echo "Check" ${PIPESTATUS[@]}
 
 # gpg --batch --delete-key --yes 0xDA181DFE1B26293F42BBEC139C01CC8AB5D3F179
@@ -54,12 +52,5 @@ echo "Verify" ${PIPESTATUS[@]}
 
 tar -xzvf ratchet_0.3.1_linux_amd64.tar.gz ratchet
 echo "Extract" ${PIPESTATUS[@]}
-
-# https://stackoverflow.com/questions/23228209/piping-shasum-to-grep-but-grep-returning-all-lines-of-piped-input-even-ones-th/23228588#23228588
-# https://stackoverflow.com/questions/22464786/ignoring-bash-pipefail-for-error-code-141/33026977#33026977
-shasum -a 512 -c ratchet_0.3.1_SHA512SUMS | grep --quiet OK || if [[ $? -eq 141 ]]; then true; else exit $?; fi
-if [[ $? -ne 0 ]]; then
-echo "non zero exit status"
-fi
 
 cd ${SCRIPT_DIRECTORY}
