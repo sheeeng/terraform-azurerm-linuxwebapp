@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: aquasecurity/tfsec-action@v1
+      - uses: aquasecurity/tfsec-action@v1.0.2
         # https://github.com/aquasecurity/tfsec-action
 
       - uses: aquasecurity/tfsec-sarif-action@v0.1.4
